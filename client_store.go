@@ -13,6 +13,8 @@ import (
 	pgAdapter "github.com/vgarvardt/go-pg-adapter"
 )
 
+var _ oauth2.ClientStore = (*ClientStore)(nil)
+
 // ClientStore PostgreSQL client store
 type ClientStore struct {
 	adapter   pgAdapter.Adapter
@@ -79,7 +81,7 @@ func (s *ClientStore) GetByID(ctx context.Context, id string) (oauth2.ClientInfo
 	}
 
 	var item ClientStoreItem
-	if err := s.adapter.SelectOne(ctx, &item, fmt.Sprintf("SELECT * FROM %s WHERE id = $1", s.tableName), id); err != nil {
+	if err := s.adapter.SelectOne(ctx, &item, fmt.Sprintf("SELECT id, secret, domain, data FROM %s WHERE id = $1", s.tableName), id); err != nil {
 		return nil, err
 	}
 
